@@ -11,7 +11,7 @@ class PagesController < ApplicationController
     render json: @pages
   end
 
-  # POST /pages
+  # POST /pages (/scrap)
   def create
     @page = Page.new(url: page_params)
 
@@ -25,6 +25,7 @@ class PagesController < ApplicationController
   end
 
   private
+    # Uses Nokogiri to parse given URL searching for titles
     def title_scrap(page)
       webpage = Nokogiri::HTML(open(page_params))
       parse_title("h1", page, webpage)
@@ -32,6 +33,7 @@ class PagesController < ApplicationController
       parse_title("h3", page, webpage)
     end
 
+    # Iterate over title tags in webpage
     def parse_title(tag, page, webpage)
       webpage.css(tag).each do |title| 
         @title_obj = Title.new(tag: tag, content: title.text.strip)
@@ -39,6 +41,7 @@ class PagesController < ApplicationController
       end
     end
 
+    # Uses Nokogiri to parse given URL searching for links
     def link_scrap(page)
       webpage = Nokogiri::HTML(open(page_params))
       webpage.css('a').each do |link| 
